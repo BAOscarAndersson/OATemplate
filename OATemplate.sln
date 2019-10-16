@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OATemplate", "OATemplate\OATemplate.csproj", "{D81F49A3-39BC-4777-BBA8-D991BFCCE6E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OATemplate.Tests", "OATemplate.Tests\OATemplate.Tests.csproj", "{32E75907-6A41-4F0D-8743-DF8D7EA53FE1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D81F49A3-39BC-4777-BBA8-D991BFCCE6E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D81F49A3-39BC-4777-BBA8-D991BFCCE6E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D81F49A3-39BC-4777-BBA8-D991BFCCE6E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D81F49A3-39BC-4777-BBA8-D991BFCCE6E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32E75907-6A41-4F0D-8743-DF8D7EA53FE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32E75907-6A41-4F0D-8743-DF8D7EA53FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32E75907-6A41-4F0D-8743-DF8D7EA53FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32E75907-6A41-4F0D-8743-DF8D7EA53FE1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C4FA44D-D153-40EA-9D31-DF3AD200DC82}
+	EndGlobalSection
+EndGlobal
