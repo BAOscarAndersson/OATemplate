@@ -1,17 +1,20 @@
-﻿@model OATemplate.Models.Template
+﻿@using System.Xml
+@model OATemplate.Models.Template
 
 
-Vald produkt: <b>@Html.DisplayFor(modelItem => modelItem.Publication)</b><br />
-Antal BS sidor: <b>20</b><br />
+Vald produkt: <b>@Model.selectedPublication</b><br />
+Antal BS sidor: <b>@Model.numberOfPages</b><br />
 <br />
 Välj template:
-<form action="/action_page.php">
+<form action="/Template/TemplateSelected" method="post">
     <select name="Template">
-        <option value="1" name="1">14_D_T12ABC-T13</option>
-        <option value="2" name="2">14_D_T12ABC-T14</option>
-        <option value="3" name="3">14_D_T12-T13[ABC]</option>
-        <option value="4" name="4">14_D_T12-T13[BCD]</option>
-        <option value="5" name="5">26=16+10_D_R1a-12-13-14_OLIKA-PAPPER</option>
+        @for (int i = 0; i < Model.savedTemplates.Length; i++)
+        {
+            <option value="@Model.savedTemplates[i]">@Model.savedTemplates[i]</option>
+        }
     </select>
+    <input type="hidden" name="selctPub" value="@Model.selectedPublication">
+    <input type="hidden" name="NrPages" value="@Model.numberOfPages">
     <input type="submit">
 </form>
+
