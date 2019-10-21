@@ -104,17 +104,225 @@ namespace OATemplate.Controllers
         {
             Template template = new Template();
 
+            //A load of values we've got over here.
             var appSettings = ConfigurationManager.AppSettings;
+            string inPath = appSettings["In"];
+            string outPath = appSettings["Out"];
+            template.selectedPublication = values["selctPub"];
+            int tempResult = Int32.Parse(values["NrPages"]);
+            template.numberOfPages = tempResult;
+            template.selectedTemplate = values["selctTemp"];
 
-            //The layout of the press is saved as a XML file.
-            template.Press = new XmlDocument();
-            string pressXMLPathAndFile = appSettings["PressXML"];
-            template.Press.Load(pressXMLPathAndFile);
+            //Moves the pages and their location into an dictionary.
+            int i = 0;
+            Dictionary<string, string> pagesLocation = new Dictionary<string, string>();
+            while (i < values.Count && i < template.numberOfPages * 4)
+            {
+                string tempKey = values.GetKey(i);
+                string tempValue = values.Get(i);
+                if (tempValue.Length > 0 && !tempKey.Contains("selct") && !tempKey.Contains("NrPages"))
+                    if(!pagesLocation.ContainsKey(tempValue))
+                        pagesLocation.Add(tempValue, tempKey);
+                
+                i++;
+            }
+            template.pagesAndLocation = pagesLocation;
 
-            //Update the XML file with the information from the model.
+            //Load the XML for the selected publication into a DOM
+            string xmlLocation = Path.Combine(inPath, template.selectedPublication);
+            XmlDocument publicationXML = new XmlDocument();
+            publicationXML.Load(xmlLocation);
+            XmlNode pages = publicationXML.SelectSingleNode("Planning/productionRuns/productionRun/plates");
+            XmlNode currentNode = pages;
+            currentNode = currentNode.FirstChild;
+            int cylinderNumber;
+            string cylinderText;
+            string topOrBottom;
+
+            if (template.pagesAndLocation.Count * 2 == template.numberOfPages)
+            {
+                for (int j = 1; j < template.pagesAndLocation.Count + 1; j++)
+                {
+                    //BLACK
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0,3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    currentNode["cylinderName"].InnerText = pagesLocation[j.ToString()].Substring(3, 4);
+                    currentNode["cylinderSector"].InnerText = "Top";
+                    currentNode["cylinderSectorName"].InnerText = "TOP";
+                    currentNode = currentNode.NextSibling;
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    currentNode["cylinderName"].InnerText = pagesLocation[j.ToString()].Substring(3, 4);
+                    currentNode["cylinderSector"].InnerText = "Bottom";
+                    currentNode["cylinderSectorName"].InnerText = "BOTTOM";
+
+                    //CYAN
+                    currentNode = currentNode.NextSibling;
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 6;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+                    currentNode["cylinderSector"].InnerText = "Top";
+                    currentNode["cylinderSectorName"].InnerText = "TOP";
+                    currentNode = currentNode.NextSibling;
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 6;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+                    currentNode["cylinderSector"].InnerText = "Bottom";
+                    currentNode["cylinderSectorName"].InnerText = "BOTTOM";
+
+                    //MAGENTA
+                    currentNode = currentNode.NextSibling;
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 4;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+                    currentNode["cylinderSector"].InnerText = "Top";
+                    currentNode["cylinderSectorName"].InnerText = "TOP";
+                    currentNode = currentNode.NextSibling;
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 4;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+                    currentNode["cylinderSector"].InnerText = "Bottom";
+                    currentNode["cylinderSectorName"].InnerText = "BOTTOM";
+
+                    //YELLOW
+                    currentNode = currentNode.NextSibling;
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 2;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+                    currentNode["cylinderSector"].InnerText = "Top";
+                    currentNode["cylinderSectorName"].InnerText = "TOP";
+                    currentNode = currentNode.NextSibling;
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 2;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+                    currentNode["cylinderSector"].InnerText = "Bottom";
+                    currentNode["cylinderSectorName"].InnerText = "BOTTOM";
+                    currentNode = currentNode.NextSibling;
+                }
+
+                publicationXML.Save(Path.Combine(outPath, template.selectedPublication));
+
+                template.failureOrSuccess = "Dubbelprodukt skickad till Arkitex.";
+            }
+            else if (template.pagesAndLocation.Count == template.numberOfPages)
+            {
+                for (int j = 1; j < template.pagesAndLocation.Count + 1; j++)
+                {
+                    //BLACK
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    currentNode["cylinderName"].InnerText = pagesLocation[j.ToString()].Substring(3, 4);
+
+                    topOrBottom = pagesLocation[j.ToString()].Substring(8, 1);
+                    if (Equals(topOrBottom, "H"))
+                        topOrBottom = "Top";
+                    else
+                        topOrBottom = "Bottom";
+
+                    currentNode["cylinderSector"].InnerText = topOrBottom;
+                    currentNode["cylinderSectorName"].InnerText = topOrBottom.ToUpper();
+
+                    currentNode = currentNode.NextSibling;
+
+                    //CYAN
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 6;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+
+                    topOrBottom = pagesLocation[j.ToString()].Substring(8, 1);
+                    if (Equals(topOrBottom, "H"))
+                        topOrBottom = "Top";
+                    else
+                        topOrBottom = "Bottom";
+
+                    currentNode["cylinderSector"].InnerText = topOrBottom;
+                    currentNode["cylinderSectorName"].InnerText = topOrBottom.ToUpper();
+
+
+                    currentNode = currentNode.NextSibling;
+
+                    //MAGENTA
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 4;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+
+                    topOrBottom = pagesLocation[j.ToString()].Substring(8, 1);
+                    if (Equals(topOrBottom, "H"))
+                        topOrBottom = "Top";
+                    else
+                        topOrBottom = "Bottom";
+
+                    currentNode["cylinderSector"].InnerText = topOrBottom;
+                    currentNode["cylinderSectorName"].InnerText = topOrBottom.ToUpper();
+
+
+                    currentNode = currentNode.NextSibling;
+
+                    //YELLOW
+                    currentNode["towerName"].InnerText = pagesLocation[j.ToString()].Substring(0, 3);
+                    currentNode["locationOnCylinder"].InnerText = pagesLocation[j.ToString()].Substring(8, 1);
+                    cylinderNumber = Int32.Parse(pagesLocation[j.ToString()].Substring(6, 1));
+                    cylinderNumber -= 2;
+                    cylinderText = pagesLocation[j.ToString()].Substring(3, 3) + cylinderNumber.ToString();
+                    currentNode["cylinderName"].InnerText = cylinderText;
+
+                    topOrBottom = pagesLocation[j.ToString()].Substring(8, 1);
+                    if (Equals(topOrBottom, "H"))
+                        topOrBottom = "Top";
+                    else
+                        topOrBottom = "Bottom";
+
+                    currentNode["cylinderSector"].InnerText = topOrBottom;
+                    currentNode["cylinderSectorName"].InnerText = topOrBottom.ToUpper();
+
+
+                    currentNode = currentNode.NextSibling;
+
+                }
+                /*  
+                 *  T11Cyl7LA
+                 *  <towerName>First Tower</towerName>
+                    <locationOnCylinder>A</locationOnCylinder>
+                    <cylinderName>C7_black</cylinderName>
+                    <cylinderSector>Top</cylinderSector>
+                    <cylinderSectorName>TOP</cylinderSectorName>
+                    */
+
+                publicationXML.Save(Path.Combine(outPath, template.selectedPublication));
+
+                template.failureOrSuccess = "Enkel produkt skickad till Arkitex.";
+            }
+            else
+            {
+                template.failureOrSuccess = "Sidantalet i templates stämmer inte överrens med sidantalet i den valda produkten";
+            }
 
             //Send the XML to the prepress-system and set the view to reflect the success or failure of this operation.
-            return View();
+            return View(template);
         }
     }
 }

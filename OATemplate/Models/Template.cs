@@ -13,6 +13,8 @@ namespace OATemplate.Models
         public int numberOfPages;
         public string[] savedTemplates;
         public string selectedTemplate;
+        public Dictionary<string, string> pagesAndLocation;
+        public string failureOrSuccess;
 
         public XmlDocument Press;
     }
