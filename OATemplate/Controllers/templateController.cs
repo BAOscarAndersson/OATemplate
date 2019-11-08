@@ -154,30 +154,17 @@ namespace OATemplate.Controllers
             {
                 for (int j = 1; j < template.pagesAndLocation.Count + 1; j++)
                 {
-                    //CYAN
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Cyan");
-                    currentNode = currentNode.NextSibling;
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Cyan");
-                    currentNode = currentNode.NextSibling;
-
-                    //MAGENTA
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Magenta");
-                    currentNode = currentNode.NextSibling;
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Magenta");
-                    currentNode = currentNode.NextSibling;
-
-                    //YELLOW 
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Yellow");
-                    currentNode = currentNode.NextSibling;
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Yellow");
-                    currentNode = currentNode.NextSibling;
-
-                    //BLACK
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Black");
-                    currentNode = currentNode.NextSibling;
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Black");
-                    currentNode = currentNode.NextSibling;
-
+                    for ( int k = 0; k < 8; k++)
+                    {
+                        string currentColour = GetColourOfNode(currentNode);
+                        if (currentColour.Contains("ERROR"))
+                        {
+                            template.failureOrSuccess = currentColour;
+                            return View(template);
+                        }
+                        publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], currentColour);
+                        currentNode = currentNode.NextSibling;
+                    }
                 }
 
                 StreamWriter sw = new StreamWriter(Path.Combine(outPath, template.selectedPublication));
@@ -192,30 +179,26 @@ namespace OATemplate.Controllers
             {
                 for (int j = 1; j < template.pagesAndLocation.Count + 1; j++)
                 {
-                    //CYAN
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Cyan");
-                    currentNode = currentNode.NextSibling;
+                    //Loops through all the plate elements in plates and assign their new values.
+                    for (int k = 0; k < 4; k++)
+                    {
+                        string currentColour = GetColourOfNode(currentNode);
+                        if (currentColour.Contains("ERROR"))
+                        {
+                            template.failureOrSuccess = currentColour;
+                            return View(template);
+                        }
+                        publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], currentColour);
+                        currentNode = currentNode.NextSibling;
+                    }
 
-                    //MAGENTA
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Magenta");
-                    currentNode = currentNode.NextSibling;
+                    StreamWriter sw = new StreamWriter(Path.Combine(outPath, template.selectedPublication));
+                    sw.NewLine = "\n";
+                    publicationXML.Save(sw);
+                    sw.Close();
 
-                    //YELLOW
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Yellow");
-                    currentNode = currentNode.NextSibling;
-
-                    //BLACK
-                    publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], "Black");
-                    currentNode = currentNode.NextSibling;
-
+                    template.failureOrSuccess = "Produkten skickad till Arkitex.";
                 }
-
-                StreamWriter sw = new StreamWriter(Path.Combine(outPath, template.selectedPublication));
-                sw.NewLine = "\n";
-                publicationXML.Save(sw);
-                sw.Close();
-
-                template.failureOrSuccess = "Produkten skickad till Arkitex.";
             }
             else
             {
@@ -248,7 +231,7 @@ namespace OATemplate.Controllers
         /// </summary>
         /// <param name="inNode">The node to get the colour of.</param>
         /// <returns>The colour of the node or an error if no colour was found. </returns>
-        private string GetColour(XmlNode inNode)
+        private string GetColourOfNode(XmlNode inNode)
         {
 
             string nameValue = inNode["name"].InnerText;
