@@ -2,12 +2,31 @@
 
 <form action="/Template/PublicationSelected" method="post">
 
+
+    Välj en tidning:<br />
     <select name="Publication">
         @foreach (var item in Model.publications)
-         {
-                <option value="@item.Value">@item.Value</option>
-         }
+        {
+            <option value="@item.Value">@item.Value</option>
+        }
     </select>
+    <input type="hidden" name="selctPubPath" value="Current">
+    <input type="submit">
+
+    <br /><br /><br />
+
+</form>
+
+<form action="/Template/PublicationSelected" method="post">
+
+    Tidningar med redan gjorda templates:<br />
+    <select name="Publication">
+        @foreach (var item in Model.donePublications)
+        {
+            <option value="@item.Value">@item.Value</option>
+        }
+    </select>
+    <input type="hidden" name="selctPubPath" value="Done">
     <input type="submit">
 
 </form>

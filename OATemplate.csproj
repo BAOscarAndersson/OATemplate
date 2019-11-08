@@ -168,7 +168,6 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
@@ -195,7 +194,6 @@
     <Content Include="Views\template\PublicationSelected.cshtml" />
     <Content Include="Views\template\TemplateSelected.cshtml" />
     <Content Include="Views\template\TemplateCommitted.cshtml" />
-    <Content Include="Views\Shared\TemplateSelection.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

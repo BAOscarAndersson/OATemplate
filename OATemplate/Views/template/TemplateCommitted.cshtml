@@ -1,10 +1,14 @@
 ﻿@model OATemplate.Models.Template
 
-Vald produkt: <b>@(Model.selectedPublication)</b><br />
-Antal BS sidor: <b>@(Model.numberOfPages)</b><br />
+Vald produkt: <b>@(Model.selectedPublication)</b>
 <br />
-Vald template: <b>@(Model.selectedTemplate)</b><br />
+Antal BS sidor: <b>@Model.numberOfPages</b> (Enkel), <b>@(Model.numberOfPages / 2)</b> (dubbel).
+<br />
+<br />
+Vald template: <b>@(Model.selectedTemplate)</b>
+<br />
 
 @(Model.failureOrSuccess)
+<br />
 <br />
 <br />

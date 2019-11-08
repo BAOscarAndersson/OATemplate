@@ -1,0 +1,15 @@
+﻿@model OATemplate.Models.Template
+
+<form action="/Template/PublicationSelected" method="post">
+
+    <select name="Publication">
+        @foreach (var item in Model.publications)
+         {
+                <option value="@item.Value">@item.Value</option>
+         }
+    </select>
+    <input type="submit">
+
+</form>
+<br />
+

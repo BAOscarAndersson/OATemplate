@@ -2,20 +2,4 @@
 @model OATemplate.Models.Template
 
 
-Vald produkt: <b>@Model.selectedPublication</b><br />
-Antal BS sidor: <b>@Model.numberOfPages</b><br />
-<br />
-Välj template:
-<form action="/Template/TemplateSelected" method="post">
-    <select name="Template">
-        @for (int i = 0; i < Model.savedTemplates.Length; i++)
-        {
-            <option value="@Model.savedTemplates[i]">@Model.savedTemplates[i]</option>
-        }
-    </select>
-    <input type="hidden" name="selctPub" value="@Model.selectedPublication">
-    <input type="hidden" name="NrPages" value="@Model.numberOfPages">
-    <input type="submit">
-</form>
-<br />
-
+@Html.Partial("~/Views/Shared/TemplateSelection.cshtml", Model)

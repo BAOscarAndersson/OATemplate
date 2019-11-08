@@ -9,9 +9,7 @@ namespace OATemplate.Models
     public class Template
     {
         public string selectedPublication;
-        public string selectedPublicationPath;
         public Dictionary<int, string> publications;
-        public Dictionary<int, string> donePublications;
         public int numberOfPages;
         public string[] savedTemplates;
         public string selectedTemplate;
