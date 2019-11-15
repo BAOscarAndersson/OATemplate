@@ -174,7 +174,7 @@ namespace OATemplate.Controllers
                 string tempKey = values.GetKey(i);
                 string tempValue = values.Get(i);
                 //All the variables that aren't pages in the Formcollection values needs to be added to here or they'll be counted as pages.
-                if (tempValue.Length > 0 && tempValue != "0" && !tempKey.Contains("selctPub") && !tempKey.Contains("Edition") && !tempKey.Contains("NrPages") && !tempKey.Contains("selctTemp") && !tempKey.Contains("selctPubPath"))
+                if (tempValue.Length > 0 && tempValue != "0" && !tempKey.Contains("selctPub") && !tempKey.Contains("printMode") && !tempKey.Contains("Edition") && !tempKey.Contains("NrPages") && !tempKey.Contains("selctTemp") && !tempKey.Contains("selctPubPath"))
                     if (!pagesLocation.ContainsKey(tempValue))
                         pagesLocation.Add(tempValue, tempKey);
 
