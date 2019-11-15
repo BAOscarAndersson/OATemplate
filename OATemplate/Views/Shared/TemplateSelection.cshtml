@@ -1,35 +1,51 @@
 ﻿@model OATemplate.Models.Template
 
-Vald produkt: <b>@Model.selectedPublication</b>
+Vald produkt: <b>@(Model.selectedPublication)</b>
 <br />
-Antal BS sidor: <b>@Model.numberOfPages</b> (Enkel), <b>@(Model.numberOfPages / 2)</b> (dubbel).
+Vald edition: <b>@(Model.selectedEdition)</b>
+<br />
+@if (Model.printMode == "collect")
+{
+<p class="tab"><b>@(Model.numberOfPages) </b> sidor, enkel.</p>
+}
+else if (Model.printMode == "straight")
+{
+<p class="tab"><b>@(Model.numberOfPages / 2)</b> sidor, dubbel.</p>
+}
+else
+{
+@:Något är udda, printMode = @(Html.DisplayText(Model.printMode.ToString()))
+}
+
 <br />
 <br />
 @if (Model.selectedTemplate != null)
 {
-    @:Vald template: <b>@Model.selectedTemplate</b>
-    <br />
-    <br />
+@:Vald template: <b>@(Model.selectedTemplate)</b>
+<br />
+<br />
 }
 
 Välj template:
 <form action="/Template/TemplateSelected" method="post">
     <select name="Template">
-        @for (int i = 0; i < Model.savedTemplates.Length; i++)
-        {
-            if (Model.savedTemplates[i] == Model.selectedTemplate)
-            {
-                <option value="@Model.savedTemplates[i]" selected>@Model.savedTemplates[i]</option>
-            }
-            else
-            {
-                <option value="@Model.savedTemplates[i]">@Model.savedTemplates[i]</option>
-            }
-        }
-        </select>
-    <input type="hidden" name="selctPub" value="@Model.selectedPublication">
-    <input type="hidden" name="NrPages" value="@Model.numberOfPages">
-    <input type="hidden" name="selctPubPath" value="@Model.selectedPublicationPath">
-    <input type="submit">
+        @for (int i = 0; i<Model.savedTemplates.Length; i++)
+                        {
+                            if (Model.savedTemplates[i] == Model.selectedTemplate)
+                            {
+        <option value="@(Model.savedTemplates[i])" selected>@(Model.savedTemplates[i])</option>
+                            }
+                            else
+                            {
+        <option value="@(Model.savedTemplates[i])">@(Model.savedTemplates[i])</option>
+                            }
+                        }
+    </select>
+    <input type="hidden" name="printMode" value="@(Model.selectedEdition)" />
+    <input type="hidden" name="Edition" value="@(Model.selectedEdition)" />
+    <input type="hidden" name="selctPub" value="@(Model.selectedPublication)" />
+    <input type="hidden" name="NrPages" value="@(Model.numberOfPages)" />
+    <input type="hidden" name="selctPubPath" value="@(Model.selectedPublicationPath)" />
+    <input type="submit" />
 </form>
 <br />

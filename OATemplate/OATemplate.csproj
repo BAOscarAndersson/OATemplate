@@ -196,6 +196,7 @@
     <Content Include="Views\template\TemplateSelected.cshtml" />
     <Content Include="Views\template\TemplateCommitted.cshtml" />
     <Content Include="Views\Shared\TemplateSelection.cshtml" />
+    <Content Include="Views\template\EditionSelected.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

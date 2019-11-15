@@ -36,6 +36,7 @@ namespace OATemplate.Controllers
         public ViewResult PublicationSelected(FormCollection values)
         {
             Template template = new Template();
+
             var appSettings = ConfigurationManager.AppSettings;
             string inPath = appSettings["In"];
             string donePath = appSettings["Done"];
@@ -51,15 +52,54 @@ namespace OATemplate.Controllers
                 xmlLocation = Path.Combine(donePath, template.selectedPublication);
             else
                 xmlLocation = Path.Combine(inPath, template.selectedPublication);
+
+            template.editions = GetEditions(xmlLocation);
+
+            return View(template);
+        }
+
+        [HttpPost]
+        public ViewResult EditionSelected(FormCollection values)
+        {
+            Template template = new Template();
+
+            var appSettings = ConfigurationManager.AppSettings;
+            string savedTemplatesPath = appSettings["Templates"];
+            string pressXMLPathAndFile = appSettings["PressXML"];
+            string inPath = appSettings["In"];
+            string donePath = appSettings["Done"];
+
+            template.selectedEdition = values["Edition"];
+            template.selectedTemplate = values["Template"];
+            template.selectedPublication = values["selctPub"];
+            template.numberOfPages = Int32.Parse(values["NrPages"]);
+            template.selectedPublicationPath = values["selctPubPath"];
+
+            //Read the associated XML file of the publication and figure out how many broadsheet pages there are in it.
+            string xmlLocation;
+            if (template.selectedPublicationPath == "Done")
+                xmlLocation = Path.Combine(donePath, template.selectedPublication);
+            else
+                xmlLocation = Path.Combine(inPath, template.selectedPublication);
             XmlDocument publicationXML = new XmlDocument();
             publicationXML.Load(xmlLocation);
-            XmlNode pagesNode = publicationXML.SelectSingleNode("Planning/productionRuns/productionRun/plates");
-            XmlNodeList pageList = pagesNode.ChildNodes;
-            template.numberOfPages = pageList.Count / 4;
+
+            //Runs through the different Editions/publicationnodes and find the selected one.
+            XmlNode productionRunNode = publicationXML.SelectSingleNode("Planning/productionRuns");
+            productionRunNode = productionRunNode.FirstChild;
+            while(productionRunNode.SelectSingleNode("name").InnerText != template.selectedEdition)
+            {
+                productionRunNode = productionRunNode.NextSibling;
+            }
+
+            XmlNodeList plateList = productionRunNode.SelectSingleNode("plates").ChildNodes;
+            template.numberOfPages = plateList.Count / 4;
+            template.printMode = productionRunNode.SelectSingleNode("printMode").InnerText;
 
             /* The templates are saved in subfolders based on the number of broadsheet pages in them. 
              * The directory for the templates with the correct number of broadsheet pages is the input to GetSavedTemplates.*/
-            template.savedTemplates = GetSavedTemplates(Path.Combine(savedTemplates, pageList.Count.ToString()));
+            template.savedTemplates = GetSavedTemplates(Path.Combine(savedTemplatesPath, plateList.Count.ToString()));
+
 
             //View to select a template or make a new one.
             return View(template);
@@ -73,11 +113,12 @@ namespace OATemplate.Controllers
             var appSettings = ConfigurationManager.AppSettings;
             string savedTemplatesPath = appSettings["Templates"];
             string pressXMLPathAndFile = appSettings["PressXML"];
+            string savedTemplates = appSettings["Templates"];
+
+            template.selectedEdition = values["Edition"];
             template.selectedTemplate = values["Template"];
             template.selectedPublication = values["selctPub"];
-            int tempResult = Int32.Parse(values["NrPages"]);
-            template.numberOfPages = tempResult;
-            string savedTemplates = appSettings["Templates"];
+            template.numberOfPages = Int32.Parse(values["NrPages"]);
             template.selectedPublicationPath = values["selctPubPath"];
 
 
@@ -114,9 +155,10 @@ namespace OATemplate.Controllers
             string inPath = appSettings["In"];
             string outPath = appSettings["Out"];
             string donePath = appSettings["Done"];
+
+            template.selectedEdition = values["Edition"];
             template.selectedPublication = values["selctPub"];
-            int tempResult = Int32.Parse(values["NrPages"]);
-            template.numberOfPages = tempResult;
+            template.numberOfPages = Int32.Parse(values["NrPages"]);
             template.selectedTemplate = values["selctTemp"];
             template.selectedPublicationPath = values["selctPubPath"];
 
@@ -127,7 +169,8 @@ namespace OATemplate.Controllers
             {
                 string tempKey = values.GetKey(i);
                 string tempValue = values.Get(i);
-                if (tempValue.Length > 0 && !tempKey.Contains("selct") && !tempKey.Contains("NrPages"))
+                //All the variables that aren't pages in the Formcollection values needs to be added to here or they'll be counted as pages.
+                if (tempValue.Length > 0 && tempValue != "0" && !tempKey.Contains("selctPub") && !tempKey.Contains("Edition") && !tempKey.Contains("NrPages") && !tempKey.Contains("selctTemp") && !tempKey.Contains("selctPubPath"))
                     if (!pagesLocation.ContainsKey(tempValue))
                         pagesLocation.Add(tempValue, tempKey);
 
@@ -146,15 +189,22 @@ namespace OATemplate.Controllers
 
             XmlDocument publicationXML = new XmlDocument();
             publicationXML.Load(xmlLocation);
-            XmlNode currentNode = publicationXML.SelectSingleNode("Planning/productionRuns/productionRun/plates");
-            currentNode = currentNode.FirstChild;
+            XmlNode productionRunNode = publicationXML.SelectSingleNode("Planning/productionRuns");
+            productionRunNode = productionRunNode.FirstChild;
 
+            while (productionRunNode.SelectSingleNode("name").InnerText != template.selectedEdition)
+            {
+                productionRunNode = productionRunNode.NextSibling;
+            }
+
+            XmlNode currentNode = productionRunNode.SelectSingleNode("plates");
+            currentNode = currentNode.FirstChild;
             /* If the production is Straight. */
             if (template.pagesAndLocation.Count * 2 == template.numberOfPages)
             {
                 for (int j = 1; j < template.pagesAndLocation.Count + 1; j++)
                 {
-                    for ( int k = 0; k < 8; k++)
+                    for (int k = 0; k < 8; k++)
                     {
                         string currentColour = GetColourOfNode(currentNode);
                         if (currentColour.Contains("ERROR"))
@@ -162,7 +212,20 @@ namespace OATemplate.Controllers
                             template.failureOrSuccess = currentColour;
                             return View(template);
                         }
-                        publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], currentColour);
+
+                        string pagesLocationWithDouble = template.pagesAndLocation[j.ToString()];
+
+                        //fix so double production has both highs and lows.
+                        if (pagesLocationWithDouble.Contains("H"))
+                        {
+                            template.pagesAndLocation[j.ToString()] = pagesLocationWithDouble.Replace("H", "L");
+                        }
+                        else
+                        {
+                            template.pagesAndLocation[j.ToString()] = pagesLocationWithDouble.Replace("L", "H");
+                        }
+
+                        publicationXML = AddPage(publicationXML, currentNode, pagesLocationWithDouble, currentColour);
                         currentNode = currentNode.NextSibling;
                     }
                 }
@@ -188,7 +251,7 @@ namespace OATemplate.Controllers
                             template.failureOrSuccess = currentColour;
                             return View(template);
                         }
-                        publicationXML = AddPage(publicationXML, currentNode, pagesLocation[j.ToString()], currentColour);
+                        publicationXML = AddPage(publicationXML, currentNode, template.pagesAndLocation[j.ToString()], currentColour);
                         currentNode = currentNode.NextSibling;
                     }
 
@@ -205,7 +268,8 @@ namespace OATemplate.Controllers
                 template.failureOrSuccess = "Sidantalet i templates stämmer inte överrens med sidantalet i den valda produkten";
             }
 
-            //Publications that have been sent to Arkitex and are in the current in folder are moved to the "Done" folder to mark them as such.
+
+            //Publications that have been sent to Arkitex and the files in the current in folder are moved to the "Done" folder to mark them as such.
             string sourceFile = Path.Combine(inPath, template.selectedPublication);
             string doneFile = Path.Combine(donePath, template.selectedPublication);
             if (template.selectedPublicationPath == "Current")
@@ -292,7 +356,7 @@ namespace OATemplate.Controllers
             inNode["cylinderName"].InnerText = cylinderText;
 
             //Arkitex only uses top or bottom.
-            topOrBottom = pageLocation.Substring(8, 1);
+            topOrBottom = pageLocation.Substring(7, 1);
             if (Equals(topOrBottom, "H"))
                 topOrBottom = "Top";
             else
@@ -345,6 +409,27 @@ namespace OATemplate.Controllers
             }
 
             return returnDictionary;
+        }
+
+        private Dictionary<int, string> GetEditions(string inPath)
+        {
+            XmlDocument publicationXML = new XmlDocument();
+            publicationXML.Load(inPath);
+            XmlNode productionRunNode = publicationXML.SelectSingleNode("Planning/productionRuns");
+            productionRunNode = productionRunNode.FirstChild;
+            Dictionary<int,string> returnDirectionary = new Dictionary<int, string>();
+
+            int i = 0;
+            do
+            {
+                returnDirectionary.Add(i, productionRunNode.SelectSingleNode("name").InnerText);
+
+                i++;
+                productionRunNode = productionRunNode.NextSibling;
+
+            } while (productionRunNode != null);
+
+            return returnDirectionary;
         }
     }
 }

@@ -10,8 +10,11 @@ namespace OATemplate.Models
     {
         public string selectedPublication;
         public string selectedPublicationPath;
+        public string selectedEdition;
+        public string printMode;
         public Dictionary<int, string> publications;
         public Dictionary<int, string> donePublications;
+        public Dictionary<int, string> editions;
         public int numberOfPages;
         public string[] savedTemplates;
         public string selectedTemplate;

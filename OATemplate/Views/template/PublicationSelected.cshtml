@@ -2,4 +2,41 @@
 @model OATemplate.Models.Template
 
 
-@Html.Partial("~/Views/Shared/TemplateSelection.cshtml", Model)
+@if (Model.editions.Count == 1)
+{
+    <form name="editionSelectedForm" action="/Template/EditionSelected" method="post">
+        <select name="Edition">
+            @foreach (var item in Model.editions)
+            {
+                <option value="@item.Value">@item.Value</option>
+            }
+        </select>
+        <input type="hidden" name="selctPub" value="@Model.selectedPublication">
+        <input type="hidden" name="NrPages" value="@Model.numberOfPages">
+        <input type="hidden" name="selctPubPath" value="@Model.selectedPublicationPath">
+        <input type="submit">
+    </form>
+
+    <script type="text/javascript">
+            document.editionSelectedForm.submit();
+    </script>
+}
+
+Vald produkt: <b>@Model.selectedPublication</b>
+<br />
+<br />
+
+        Välj Edition:
+<form action="/Template/EditionSelected" method="post">
+    <select name="Edition">
+        @foreach (var item in Model.editions)
+        {
+            <option value="@item.Value">@item.Value</option>
+        }
+    </select>
+    <input type="hidden" name="selctPub" value="@Model.selectedPublication">
+    <input type="hidden" name="NrPages" value="@Model.numberOfPages">
+    <input type="hidden" name="selctPubPath" value="@Model.selectedPublicationPath">
+    <input type="submit">
+</form>
+<br />
