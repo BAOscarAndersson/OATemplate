@@ -126,14 +126,18 @@ namespace OATemplate.Controllers
             XmlDocument savedTemplateXML = new XmlDocument();
             XmlDocument pressXML = new XmlDocument();
             pressXML.Load(pressXMLPathAndFile);
-            savedTemplateXML.Load(Path.Combine(savedTemplatesPath, (template.numberOfPages * 4).ToString(), template.selectedTemplate));
 
-            foreach (XmlNode aTower in savedTemplateXML.SelectSingleNode("/Press").ChildNodes)
-                foreach (XmlNode aCylinder in savedTemplateXML.SelectSingleNode("/Press/" + aTower.Name).ChildNodes)
-                    foreach (XmlNode aHalfCylinder in savedTemplateXML.SelectSingleNode("/Press/" + aTower.Name + "/" + aCylinder.Name).ChildNodes)
-                        foreach (XmlNode aSection in savedTemplateXML.SelectSingleNode("/Press/" + aTower.Name + "/" + aCylinder.Name + "/" + aHalfCylinder.Name).ChildNodes)
-                            foreach (XmlNode aPage in savedTemplateXML.SelectSingleNode("/Press/" + aTower.Name + "/" + aCylinder.Name + "/" + aHalfCylinder.Name + "/" + aSection.Name).ChildNodes)
-                                pressXML.SelectSingleNode("/Press/" + aTower.Name + "/" + aCylinder.Name + "/" + aHalfCylinder.Name + "/" + aSection.Name + "/" + aPage.Name).InnerText = aPage.InnerText;
+            if (template.selectedTemplate != "Inga templates funna")
+            {
+                savedTemplateXML.Load(Path.Combine(savedTemplatesPath, (template.numberOfPages * 4).ToString(), template.selectedTemplate));
+
+                foreach (XmlNode aTower in savedTemplateXML.SelectSingleNode("/Press").ChildNodes)
+                    foreach (XmlNode aCylinder in savedTemplateXML.SelectSingleNode("/Press/" + aTower.Name).ChildNodes)
+                        foreach (XmlNode aHalfCylinder in savedTemplateXML.SelectSingleNode("/Press/" + aTower.Name + "/" + aCylinder.Name).ChildNodes)
+                            foreach (XmlNode aSection in savedTemplateXML.SelectSingleNode("/Press/" + aTower.Name + "/" + aCylinder.Name + "/" + aHalfCylinder.Name).ChildNodes)
+                                foreach (XmlNode aPage in savedTemplateXML.SelectSingleNode("/Press/" + aTower.Name + "/" + aCylinder.Name + "/" + aHalfCylinder.Name + "/" + aSection.Name).ChildNodes)
+                                    pressXML.SelectSingleNode("/Press/" + aTower.Name + "/" + aCylinder.Name + "/" + aHalfCylinder.Name + "/" + aSection.Name + "/" + aPage.Name).InnerText = aPage.InnerText;
+            }
 
             template.Press = pressXML;
 
@@ -378,14 +382,24 @@ namespace OATemplate.Controllers
             string[] foundTemplates;
 
             //Template files are saved in subdirectories of savedTemplates based on their plate count.
-            string[] allFilesInDir = Directory.GetFiles(pathToTemplates, @"*.xml");
-
-            //Get the file names and put them into the model.
-            foundTemplates = new string[allFilesInDir.Length];
-            for (int i = 0; i < allFilesInDir.Length; i++)
+            try
             {
-                foundTemplates[i] = Path.GetFileName(allFilesInDir[i]);
+                string[] allFilesInDir = Directory.GetFiles(pathToTemplates, @"*.xml");
+
+                //Get the file names and put them into the model.
+                foundTemplates = new string[allFilesInDir.Length];
+                for (int i = 0; i < allFilesInDir.Length; i++)
+                {
+                    foundTemplates[i] = Path.GetFileName(allFilesInDir[i]);
+                }
             }
+            catch(IOException e)
+            {
+                foundTemplates = new string[1];
+                foundTemplates[0] = "Inga templates funna";
+            }
+
+            
 
             return foundTemplates;
         }
