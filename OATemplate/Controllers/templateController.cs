@@ -72,7 +72,6 @@ namespace OATemplate.Controllers
             template.selectedEdition = values["Edition"];
             template.selectedTemplate = values["Template"];
             template.selectedPublication = values["selctPub"];
-            template.numberOfPages = Int32.Parse(values["NrPages"]);
             template.selectedPublicationPath = values["selctPubPath"];
 
             //Read the associated XML file of the publication and figure out how many broadsheet pages there are in it.
@@ -98,8 +97,7 @@ namespace OATemplate.Controllers
 
             /* The templates are saved in subfolders based on the number of broadsheet pages in them. 
              * The directory for the templates with the correct number of broadsheet pages is the input to GetSavedTemplates.*/
-            template.savedTemplates = GetSavedTemplates(Path.Combine(savedTemplatesPath, plateList.Count.ToString()));
-
+            template.savedTemplates = GetSavedTemplates(Path.Combine(savedTemplatesPath, (template.numberOfPages * 4).ToString()));
 
             //View to select a template or make a new one.
             return View(template);
@@ -115,6 +113,7 @@ namespace OATemplate.Controllers
             string pressXMLPathAndFile = appSettings["PressXML"];
             string savedTemplates = appSettings["Templates"];
 
+            template.printMode = values["printMode"];
             template.selectedEdition = values["Edition"];
             template.selectedTemplate = values["Template"];
             template.selectedPublication = values["selctPub"];
@@ -160,6 +159,7 @@ namespace OATemplate.Controllers
             string outPath = appSettings["Out"];
             string donePath = appSettings["Done"];
 
+            template.printMode = values["printMode"];
             template.selectedEdition = values["Edition"];
             template.selectedPublication = values["selctPub"];
             template.numberOfPages = Int32.Parse(values["NrPages"]);
@@ -269,25 +269,26 @@ namespace OATemplate.Controllers
             }
             else
             {
-                template.failureOrSuccess = "Sidantalet i templates stämmer inte överrens med sidantalet i den valda produkten";
+                template.failureOrSuccess = "ERROR - Sidantalet i templates stämmer inte överrens med sidantalet i den valda produkten";
             }
 
-
-            //Publications that have been sent to Arkitex and the files in the current in folder are moved to the "Done" folder to mark them as such.
-            string sourceFile = Path.Combine(inPath, template.selectedPublication);
-            string doneFile = Path.Combine(donePath, template.selectedPublication);
-            if (template.selectedPublicationPath == "Current")
+            if (!template.failureOrSuccess.Contains("ERROR"))
             {
-                try
+                //Publications that have been sent to Arkitex and the files in the current in folder are moved to the "Done" folder to mark them as such.
+                string sourceFile = Path.Combine(inPath, template.selectedPublication);
+                string doneFile = Path.Combine(donePath, template.selectedPublication);
+                if (template.selectedPublicationPath == "Current")
                 {
-                    System.IO.File.Move(sourceFile, doneFile);
-                }
-                catch (IOException)
-                {
-                    template.failureOrSuccess = "Publication was moved to Arkitex but couldn't be moved to done.";
+                    try
+                    {
+                        System.IO.File.Move(sourceFile, doneFile);
+                    }
+                    catch (IOException)
+                    {
+                        template.failureOrSuccess = "Templaten skickades till Arkitex men kunde inte flyttas till de redan gjorda templatsen.";
+                    }
                 }
             }
-
 
             //Send the XML to the prepress-system and set the view to reflect the success or failure of this operation.
             return View(template);
