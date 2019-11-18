@@ -6,11 +6,11 @@ Vald edition: <b>@(Model.selectedEdition)</b>
 <br />
 @if (Model.printMode == "collect")
 {
-<p class="tab"><b>@(Model.numberOfPages) </b> sidor, enkel.</p>
+<p class="tab"><b>@(Model.numberOfPages) </b> BS sidor, enkel.</p>
 }
 else if (Model.printMode == "straight")
 {
-<p class="tab"><b>@(Model.numberOfPages / 2)</b> sidor, dubbel.</p>
+<p class="tab"><b>@(Model.numberOfPages / 2)</b> BS sidor, dubbel.</p>
 }
 else
 {
@@ -41,7 +41,7 @@ Välj template:
                             }
                         }
     </select>
-    <input type="hidden" name="printMode" value="@(Model.selectedEdition)" />
+    <input type="hidden" name="printMode" value="@(Model.printMode)" />
     <input type="hidden" name="Edition" value="@(Model.selectedEdition)" />
     <input type="hidden" name="selctPub" value="@(Model.selectedPublication)" />
     <input type="hidden" name="NrPages" value="@(Model.numberOfPages)" />

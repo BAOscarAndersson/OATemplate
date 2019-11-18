@@ -2,11 +2,21 @@
 
 Vald produkt: <b>@(Model.selectedPublication)</b>
 <br />
-Antal BS sidor: <b>@Model.numberOfPages</b> (Enkel), <b>@(Model.numberOfPages / 2)</b> (dubbel).
+Vald edition: <b>@(Model.selectedEdition)</b>
 <br />
-<br />
-Vald template: <b>@(Model.selectedTemplate)</b>
-<br />
+@if (Model.printMode == "collect")
+{
+    <p class="tab"><b>@(Model.numberOfPages) </b> BS sidor, enkel.</p>
+}
+else if (Model.printMode == "straight")
+{
+<p class="tab"><b>@(Model.numberOfPages / 2)</b> BS sidor, dubbel.</p>
+}
+else
+{
+    @:Något är udda, printMode = @(Html.DisplayText(Model.printMode.ToString()))
+}
+
 
 @(Model.failureOrSuccess)
 <br />

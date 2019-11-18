@@ -97,8 +97,8 @@ namespace OATemplate.Controllers
 
             /* The templates are saved in subfolders based on the number of broadsheet pages in them. 
              * The directory for the templates with the correct number of broadsheet pages is the input to GetSavedTemplates.*/
-            template.savedTemplates = GetSavedTemplates(Path.Combine(savedTemplatesPath, (template.numberOfPages * 4).ToString()));
-
+            template.savedTemplates = GetSavedTemplates(Path.Combine(savedTemplatesPath, (template.numberOfPages * 4).ToString()), template.printMode);
+            
             //View to select a template or make a new one.
             return View(template);
         }
@@ -142,7 +142,7 @@ namespace OATemplate.Controllers
 
             /* The saved templates are loaded again so they can be displayed in the TemplateSelected view 
              * so the user doesn't have to restart everytime they want to select a new template. */
-            template.savedTemplates = GetSavedTemplates(Path.Combine(savedTemplates, (template.numberOfPages * 4).ToString()));
+            template.savedTemplates = GetSavedTemplates(Path.Combine(savedTemplatesPath, (template.numberOfPages * 4).ToString()), template.printMode);
 
             //Fills in the form with the page numbers from the model.
             return View(template);
@@ -378,31 +378,39 @@ namespace OATemplate.Controllers
         /// </summary>
         /// <param name="pathToTemplates">The folder to get the xml from.</param>
         /// <returns>A string array of XML file names.</returns>
-        private String[] GetSavedTemplates(string pathToTemplates)
+        private String[] GetSavedTemplates(string pathToTemplates, string printMode)
         {
-            string[] foundTemplates;
+            string[] allTemplates;
+            List<string> correctTemplates = new List<string>();
 
             //Template files are saved in subdirectories of savedTemplates based on their plate count.
             try
             {
                 string[] allFilesInDir = Directory.GetFiles(pathToTemplates, @"*.xml");
 
-                //Get the file names and put them into the model.
-                foundTemplates = new string[allFilesInDir.Length];
+                //Get the file names and check if they are straight or collect.
+                allTemplates = new string[allFilesInDir.Length];
                 for (int i = 0; i < allFilesInDir.Length; i++)
                 {
-                    foundTemplates[i] = Path.GetFileName(allFilesInDir[i]);
+                    allTemplates[i] = Path.GetFileName(allFilesInDir[i]);
+                }
+                foreach (string aTemplate in allTemplates)
+                {
+                    XmlDocument templateXML = new XmlDocument();
+                    templateXML.Load(Path.Combine(pathToTemplates, aTemplate));
+
+                    if (templateXML.SelectSingleNode("Press").Attributes["printMode"].Value.ToLower() == printMode.ToLower())
+                        correctTemplates.Add(aTemplate);
                 }
             }
             catch(IOException e)
             {
-                foundTemplates = new string[1];
-                foundTemplates[0] = "Inga templates funna";
+                correctTemplates.Add("Inga templates funna");
             }
 
             
 
-            return foundTemplates;
+            return correctTemplates.ToArray();
         }
 
         /// <summary>
